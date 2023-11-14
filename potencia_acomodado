@@ -1,5 +1,7 @@
 import matplotlib
 import matplotlib.pyplot as plt 
+import tensorflow as tf
+import numpy as np
 
 datos_despues_coma = []
 
@@ -32,8 +34,7 @@ numeros_despues_coma_normalizados = [valor / maximo_valor for valor in datos_des
 ############################################
 # MODELO
 ##########################################
-import tensorflow as tf
-import numpy as np
+
 np.random.seed(0)
 tf.random.set_seed(0)
 
