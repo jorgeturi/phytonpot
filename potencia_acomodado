@@ -38,7 +38,7 @@ np.random.seed(0)
 tf.random.set_seed(0)
 
 datos = np.array(numeros_despues_coma_normalizados, dtype=float)
-datos2 = np.arange(0, len(numeros_despues_coma_normalizados))
+eje_x_mediciones = np.arange(0, len(numeros_despues_coma_normalizados))
 
 
 # Definir el modelo secuencial
@@ -67,15 +67,12 @@ modelo.compile(
 # PREDICCIONES
 ##
 
-
-evaluacion = modelo.evaluate(datos2, datos)
+evaluacion = modelo.evaluate(eje_x_mediciones, datos)
 print("Pérdida en datos de prueba:", evaluacion)
 
-datos3 = np.arange(1400, 2799)
-datos3 = numeros_despues_coma_normalizados
 # Realizar predicciones en los datos de prueba
 
-predicciones = modelo.predict(datos3)
+predicciones = modelo.predict(numeros_despues_coma_normalizados)
 
 print("primer valor")
 #predicciones = predicciones * 2
@@ -86,19 +83,8 @@ print(maximo_valor)
 print("primer valor")
 #predicciones = [valor * maximo_valor for valor in predicciones] #desnormalizo
 
-print(predicciones[0])
-
-#predicciones = [valor * 1.2 for valor in datos_despues_coma] #desnormalizo
-print("le mande hacer predicciones con:")
-print(datos3)
-print("el mayor es")
-print(max(datos3))
-
-#datos = datos*maximo_valor
-# Crear un gráfico de dispersión para comparar las predicciones con los valores reales
-plt.plot(datos2, datos, label='Valores reales entrenados')
-#plt.scatter(datos2, datos3, label='Valores reales sin entrenar', marker='+')
-plt.plot(datos2, predicciones, label='Predicciones')
+plt.plot(eje_x_mediciones, datos, label='Valores reales entrenados')
+plt.plot(eje_x_mediciones, predicciones, label='Predicciones')
 
 plt.xlabel("Índice de Datos")
 plt.ylabel("Valor")
