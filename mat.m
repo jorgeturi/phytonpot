@@ -2,7 +2,7 @@
     % Archivo de script para graficar en MATLAB
 
     % Cargar datos desde el archivo
-    datos = load('datos_mat.txt');
+    datos = load('datos_mat2.txt');
 
     % Separar datos_x y datos_y
     datos_x = datos(:, 1);
@@ -16,8 +16,8 @@
     figure;
     hold on;
     plot(datos_x);
-    plot(datos_y);
+    plot(-0.5*datos_y+0.011);
 
 
 
-    
+

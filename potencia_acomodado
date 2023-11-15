@@ -29,7 +29,7 @@ def generar_codigo_matlab(nombre_archivo='grafico_datos'):
     figure;
     hold on;
     plot(datos_x);
-    plot(datos_y);
+    plot(-0.5*datos_y+0.011);
 
 
 
@@ -69,6 +69,18 @@ maximo_valor = max(datos_despues_coma)
 print(maximo_valor)
 
 numeros_despues_coma_normalizados = [valor / maximo_valor for valor in datos_despues_coma]
+todos_los_datos = numeros_despues_coma_normalizados
+# Definir la proporción de datos que deseas en numeros_despues_coma_normalizados
+proporcion_datos_test = 0.5  # Por ejemplo, 20%
+
+# Calcular la cantidad de datos que se trasladarán a datos_test
+cantidad_datos_test = int(len(numeros_despues_coma_normalizados) * proporcion_datos_test)
+
+# Mover los datos a datos_test
+datos_test = numeros_despues_coma_normalizados[:cantidad_datos_test]
+numeros_despues_coma_normalizados = numeros_despues_coma_normalizados[cantidad_datos_test:]
+
+
 
 ############################################
 # MODELO
@@ -113,7 +125,7 @@ modelo.compile(
 # Realizar predicciones en los datos de prueba
 
 predicciones = modelo.predict(numeros_despues_coma_normalizados)
-
+predicciones2 = modelo.predict(datos_test)
 #print("primer valor")
 #predicciones = predicciones * 2
 #print(predicciones[0])
@@ -135,5 +147,13 @@ predicciones = modelo.predict(numeros_despues_coma_normalizados)
 
 # Guardar los datos en un archivo
 np.savetxt('datos_mat.txt', np.column_stack((datos, predicciones )))
+indices = np.arange(len(datos_test))
+# Crear un array de datos a testear con los índices y las predicciones
+
+np.savetxt('datos_mat2.txt', np.column_stack((datos_test, predicciones2 )))
+cant_datos = np.arange(len(todos_los_datos))
+
+np.savetxt('datos_mat3.txt', np.column_stack((cant_datos,todos_los_datos)))
+
 generar_codigo_matlab('mat')
 
