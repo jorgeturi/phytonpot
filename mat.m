@@ -9,14 +9,15 @@
     datos_y = datos(:, 2);
 
     %Graficar
-    figure;
+    figure(1);
     plot(datos_x);
-    figure;
+    figure(2);
     plot(datos_y);
-    figure;
+    figure(3);
     hold on;
     plot(datos_x);
-    plot(datos_y);
+    
+    plot(datos_y,'r');
 
 
 
