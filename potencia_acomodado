@@ -3,6 +3,45 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 import numpy as np
 
+
+
+
+
+
+def generar_codigo_matlab(nombre_archivo='grafico_datos'):
+    
+    # Crear el contenido del archivo .m
+    contenido_m = f"""
+    % Archivo de script para graficar en MATLAB
+
+    % Cargar datos desde el archivo
+    datos = load('datos_mat.txt');
+
+    % Separar datos_x y datos_y
+    datos_x = datos(:, 1);
+    datos_y = datos(:, 2);
+
+    %Graficar
+    figure;
+    plot(datos_x);
+    figure;
+    plot(datos_y);
+    figure;
+    hold on;
+    plot(datos_x);
+    plot(datos_y);
+
+
+
+    """
+
+    # Guardar el contenido en un archivo .m
+    with open(f"{nombre_archivo}.m", "w", encoding="utf-8") as archivo_matlab:
+        archivo_matlab.write(contenido_m)
+
+
+
+
 datos_despues_coma = []
 
 try:
@@ -68,27 +107,33 @@ modelo.compile(
 # PREDICCIONES
 ##
 
-evaluacion = modelo.evaluate(eje_x_mediciones, datos)
-print("Pérdida en datos de prueba:", evaluacion)
+#evaluacion = modelo.evaluate(eje_x_mediciones, datos)
+#print("Pérdida en datos de prueba:", evaluacion)
 
 # Realizar predicciones en los datos de prueba
 
 predicciones = modelo.predict(numeros_despues_coma_normalizados)
 
-print("primer valor")
+#print("primer valor")
 #predicciones = predicciones * 2
-print(predicciones[0])
+#print(predicciones[0])
 
-print("multiplique todo por")
-print(maximo_valor)
-print("primer valor")
+#print("multiplique todo por")
+#print(maximo_valor)
+#print("primer valor")
 #predicciones = [valor * maximo_valor for valor in predicciones] #desnormalizo
 
-plt.plot(eje_x_mediciones, datos, label='Valores reales entrenados')
-plt.plot(eje_x_mediciones, predicciones, label='Predicciones')
+#plt.plot(eje_x_mediciones, datos, label='Valores reales entrenados')
+#plt.plot(eje_x_mediciones, predicciones, label='Predicciones')
 
-plt.xlabel("Índice de Datos")
-plt.ylabel("Valor")
-plt.legend()
-plt.title('Comparación de Predicciones en Datos de Prueba')
-plt.show()
+#plt.xlabel("Índice de Datos")
+#plt.ylabel("Valor")
+#plt.legend()
+#plt.title('Comparación de Predicciones en Datos de Prueba')
+#plt.show()
+
+
+# Guardar los datos en un archivo
+np.savetxt('datos_mat.txt', np.column_stack((datos, predicciones )))
+generar_codigo_matlab('mat')
+
