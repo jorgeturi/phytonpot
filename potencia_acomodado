@@ -12,24 +12,55 @@ def generar_codigo_matlab(nombre_archivo='grafico_datos'):
     
     # Crear el contenido del archivo .m
     contenido_m = f"""
+    % 
     % Archivo de script para graficar en MATLAB
 
     % Cargar datos desde el archivo
-    datos = load('datos_mat.txt');
+    datos = load('datos_mat3.txt');
 
     % Separar datos_x y datos_y
     datos_x = datos(:, 1);
     datos_y = datos(:, 2);
 
     %Graficar
-    figure;
-    plot(datos_x);
-    figure;
-    plot(datos_y);
+    %figure;
+    %plot(datos_x);
+    %figure;
+    %plot(datos_y);
     figure;
     hold on;
-    plot(datos_x);
-    plot(-0.5*datos_y+0.011);
+    %plot(datos_x);
+    plot(datos_y);%plot(-0.5*datos_y+0.011);
+
+
+datos2 = load('datos_mat2.txt');
+datos_x1 = datos2(:, 2);
+
+datos3 = load('datos_mat.txt');
+datos_x2 = datos3(:, 2);
+
+% Concatenar los datos verticalmente
+datos_concatenados = cat(1, datos_x1, datos_x2);
+
+figure;
+hold on;
+%plot(datos_x1, 'r'); % Graficar datos_x1 en rojo
+%plot(datos_x2, 'b'); % Graficar datos_x2 en azul
+plot(datos_concatenados, 'g');  % Graficar la concatenación en verde
+
+xlabel('Índice de Datos');
+ylabel('Valor');
+legend('datos_x1', 'datos_x2', 'Concatenados');
+title('Comparación de Datos Concatenados');
+grid on;
+
+
+%COMPARACION
+figure;
+hold on;
+plot(datos_concatenados, 'g');  % Graficar la concatenación en verde
+plot(datos_y);%plot(-0.5*datos_y+0.011);
+
 
 
 
@@ -69,6 +100,9 @@ maximo_valor = max(datos_despues_coma)
 print(maximo_valor)
 
 numeros_despues_coma_normalizados = [valor / maximo_valor for valor in datos_despues_coma]
+print(datos_despues_coma);
+print("DESPUES DE NORMALIZAR");
+print(numeros_despues_coma_normalizados);
 todos_los_datos = numeros_despues_coma_normalizados
 # Definir la proporción de datos que deseas en numeros_despues_coma_normalizados
 proporcion_datos_test = 0.5  # Por ejemplo, 20%
@@ -97,10 +131,10 @@ eje_x_mediciones = np.arange(0, len(numeros_despues_coma_normalizados))
 modelo = tf.keras.Sequential()
 
 # Agregar la primera capa oculta
-modelo.add(tf.keras.layers.Dense(units=128, input_shape=[1], activation='linear', kernel_initializer='he_normal'))
-
+modelo.add(tf.keras.layers.Dense(units=2, input_shape=[1], activation='linear', kernel_initializer='he_normal'))
+#128 y 64 antes
 #relu linear tanh
-modelo.add(tf.keras.layers.Dense(units=64, activation='linear'))
+modelo.add(tf.keras.layers.Dense(units=2, activation='linear'))
 modelo.add(tf.keras.layers.Dense(units=1, activation='linear'))
 
 # Resumen del modelo
@@ -114,17 +148,32 @@ modelo.compile(
 )
 
 
+# Convertir la lista a un array de NumPy
+numeros_despues_coma_array = np.array(numeros_despues_coma_normalizados)
+# Asegurarte de que el array tiene la forma correcta (por ejemplo, [número de ejemplos, número de características])
+numeros_despues_coma_array = numeros_despues_coma_array.reshape(-1, 1)
+
+cant_valores = np.arange(len(numeros_despues_coma_array))
+modelo.fit(cant_valores,numeros_despues_coma_array, epochs=50, batch_size=32, validation_split=0.2)
 
 ##
 # PREDICCIONES
 ##
 
-#evaluacion = modelo.evaluate(eje_x_mediciones, datos)
-#print("Pérdida en datos de prueba:", evaluacion)
+# Evaluar el modelo en el conjunto de datos de prueba
+
+
+resultado = modelo.evaluate(cant_valores,numeros_despues_coma_array)
+# Imprimir la pérdida y otras métricas (si se definieron)
+print("Pérdida en datos de prueba:", resultado)
 
 # Realizar predicciones en los datos de prueba
 
-predicciones = modelo.predict(numeros_despues_coma_normalizados)
+predicciones = modelo.predict(numeros_despues_coma_array)
+########################################################################
+################################################
+### ATENCIONNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
+##### cambiar la forma de "list" a lo que espera que es con el reshape
 predicciones2 = modelo.predict(datos_test)
 #print("primer valor")
 #predicciones = predicciones * 2
@@ -144,16 +193,50 @@ predicciones2 = modelo.predict(datos_test)
 #plt.title('Comparación de Predicciones en Datos de Prueba')
 #plt.show()
 
+# desnormalizacion
+print("el maximo valor")
+print(maximo_valor)
+
+todos_los_datos = [valor * maximo_valor for valor in todos_los_datos]
+predicciones = [valor * maximo_valor for valor in predicciones]
+predicciones2 = [valor * maximo_valor for valor in predicciones2]
 
 # Guardar los datos en un archivo
-np.savetxt('datos_mat.txt', np.column_stack((datos, predicciones )))
+cant_datos = np.arange(len(predicciones))
+np.savetxt('datos_mat.txt', np.column_stack((cant_datos, predicciones )))
 indices = np.arange(len(datos_test))
 # Crear un array de datos a testear con los índices y las predicciones
 
-np.savetxt('datos_mat2.txt', np.column_stack((datos_test, predicciones2 )))
+cant_datos = np.arange(len(predicciones2))
+np.savetxt('datos_mat2.txt', np.column_stack((cant_datos, predicciones2 )))
 cant_datos = np.arange(len(todos_los_datos))
 
 np.savetxt('datos_mat3.txt', np.column_stack((cant_datos,todos_los_datos)))
 
 generar_codigo_matlab('mat')
 
+
+
+
+
+# Obtener los últimos 'n' datos de entrenamiento (en este caso, n = 50)
+ultimos_datos_entrenamiento = np.array(numeros_despues_coma_normalizados[-50:])
+
+# Inicializar un array para almacenar las predicciones
+predicciones_siguientes_50 = []
+
+# Realizar las predicciones para los 50 siguientes valores
+for _ in range(50):
+    prediccion = modelo.predict(ultimos_datos_entrenamiento.reshape(-1, 1))
+    predicciones_siguientes_50.append(prediccion[0])
+    ultimos_datos_entrenamiento = np.roll(ultimos_datos_entrenamiento, -1)
+    ultimos_datos_entrenamiento[-1] = prediccion[0]
+
+# Imprimir las predicciones
+print(predicciones_siguientes_50)
+predicciones_siguientes_50 = [valor * maximo_valor for valor in predicciones_siguientes_50]
+print("DESPUES DE DESNORMALIZAR")
+print("Predicciones para los siguientes 50 valores:", predicciones_siguientes_50)
+
+print("el maximo valor")
+print(maximo_valor)
